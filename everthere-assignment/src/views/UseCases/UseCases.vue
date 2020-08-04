@@ -1,13 +1,14 @@
 <template>
-  <div class="page-container">
-    <div v-if="error" class="error">{{ error }}</div>
+  <div class='page-container'>
+    <div v-if='error' class='error'>{{ error }}</div>
 
-    <div class="page-header">{{ entityTypes[selectedEntity].label }}</div>
+    <div class='page-header'>{{ entityTypes[selectedEntity].label }}</div>
 
-    <div v-if="data">
+    <div v-if='data'>
+        <FilterPanel v-bind:filters="filterTags" />
       <ETDataTable
-        v-if="selectedEntity === entityTypes.THOUGHT_LEADERS.enumStr "
-        v-bind:data="data"
+        v-if='selectedEntity === entityTypes.THOUGHT_LEADERS.enumStr '
+        v-bind:data='data'
       />
     </div>
 
@@ -15,42 +16,43 @@
 </template>
 <script>
 
-import ETDataTable from "./ThoughtLeaders/BaseThoughtLeadersTable.vue";
-
+import ETDataTable from './ThoughtLeaders/BaseThoughtLeadersTable.vue';
+import FilterPanel from './FilterPanel.vue';
 // Define a enum of entitytypes for the Use Cases page to handle the different 
 // entity types. This can facilitate rendering, i18N if translation libraries 
 // like Izumi are used, etc 
 const entityTypes = Object.freeze({
   COMPANIES: {
-    enumStr: "COMPANIES",
-    label: "Companies" // could be replaced by key for Izumi tranlsation
+    enumStr: 'COMPANIES',
+    label: 'Companies' // could be replaced by key for Izumi tranlsation
   },
   EVENTS: {
-    enumStr: "EVENTS",
-    label: "Live/Virtual Events"
+    enumStr: 'EVENTS',
+    label: 'Live/Virtual Events'
   },
   PUBLICATIONS: {
-    enumStr: "PUBLICATIONS",
-    label: "Publications"
+    enumStr: 'PUBLICATIONS',
+    label: 'Publications'
   },
   THOUGHT_LEADERS: {
-    enumStr: "THOUGHT_LEADERS",
-    label: "Thought Leaders"
+    enumStr: 'THOUGHT_LEADERS',
+    label: 'Thought Leaders'
   },
   PODCASTS: {
-    enumStr: "PODCASTS",
-    label: "Podcasts"
+    enumStr: 'PODCASTS',
+    label: 'Podcasts'
   },
   WEBINARS: {
-    enumStr: "WEBINARS",
-    label: "Webinars"
+    enumStr: 'WEBINARS',
+    label: 'Webinars'
   }
 });
 
 export default {
-  name: "UseCases",
+  name: 'UseCases',
   components: {
-    ETDataTable
+    ETDataTable,
+    FilterPanel
   },
   props: {
     message: String
@@ -60,15 +62,17 @@ export default {
       entityTypes: entityTypes,
       selectedEntity: entityTypes.THOUGHT_LEADERS.enumStr,
       error: null,
-      data: []
+      data: [],
+      filterTags: []
     };
   },
   mounted() {
-    const url = "/api/thought-leaders"; // url replaced depending on entity
+    const url = '/api/thought-leaders'; // url replaced depending on entity
     fetch(url)
       .then(res => res.json())
       .then(json => {
         this.data = json;
+        this.filterTags = [...new Set(this.data.map( entity => entity.label))];
       })
       .catch(error => {
         this.error = error;
